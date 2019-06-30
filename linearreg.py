@@ -158,3 +158,51 @@ categoricals = train.select_dtypes(exclude=[np.number])
 #categoricals.describe()
 print(categoricals.describe())
 
+######################################################
+#   Transforming and engineering features           ##
+######################################################
+
+print("17 \n")
+
+# When transforming features, it's important to remember that any transformations that you've applied to the training data before
+# fitting the model must be applied to the test data.
+
+#Eg:
+print ("Original: \n")
+print (train.Street.value_counts(), "\n")
+
+print("18 \n")
+
+# our model needs numerical data, so we will use one-hot encoding to transform the data into a Boolean column.
+# create a new column called enc_street. The pd.get_dummies() method will handle this for us
+train['enc_street'] = pd.get_dummies(train.Street, drop_first=True)
+test['enc_street'] = pd.get_dummies(test.Street, drop_first=True)
+
+print ('Encoded: \n')
+print (train.enc_street.value_counts())  # Pave and Grvl values converted into 1 and 0
+
+print("19 \n")
+
+# look at SaleCondition by constructing and plotting a pivot table, as we did above for OverallQual
+condition_pivot = train.pivot_table(index='SaleCondition', values='SalePrice', aggfunc=np.median)
+condition_pivot.plot(kind='bar', color='blue')
+plt.xlabel('Sale Condition')
+plt.ylabel('Median Sale Price')
+plt.xticks(rotation=0)
+plt.show()
+
+# encode this SaleCondition as a new feature by using a similar method that we used for Street above
+def encode(x): return 1 if x == 'Partial' else 0
+train['enc_condition'] = train.SaleCondition.apply(encode)
+test['enc_condition'] = test.SaleCondition.apply(encode)
+
+print("20 \n")
+
+# explore this newly modified feature as a plot.
+condition_pivot = train.pivot_table(index='enc_condition', values='SalePrice', aggfunc=np.median)
+condition_pivot.plot(kind='bar', color='blue')
+plt.xlabel('Encoded Sale Condition')
+plt.ylabel('Median Sale Price')
+plt.xticks(rotation=0)
+plt.show()
+
