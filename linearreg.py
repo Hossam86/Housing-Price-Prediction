@@ -302,3 +302,42 @@ for i in range (-2, 3):
 
 print("27 \n")
 print("R^2 is: \n", model.score(X_test, y_test))
+
+######################################################
+#    4.  Make a submission                          ##
+######################################################
+
+# create a csv that contains the predicted SalePrice for each observation in the test.csv dataset.
+submission = pd.DataFrame()
+# The first column must the contain the ID from the test data.
+submission['Id'] = test.Id
+
+# select the features from the test data for the model as we did above.
+feats = test.select_dtypes(
+    include=[np.number]).drop(['Id'], axis=1).interpolate()
+
+# generate predictions
+predictions = model.predict(feats)
+
+# transform the predictions to the correct form
+# apply np.exp() to our predictions becasuse we have taken the logarithm(np.log()) previously.
+final_predictions = np.exp(predictions)
+
+print("28 \n")
+
+# check the difference
+print("Original predictions are: \n", predictions[:10], "\n")
+print("Final predictions are: \n", final_predictions[:10])
+
+print("29 \n")
+# assign these predictions and check
+submission['SalePrice'] = final_predictions
+# submission.head()
+print(submission.head())
+
+# export to a .csv file as Kaggle expects.
+# pass index=False because Pandas otherwise would create a new index for us.
+submission.to_csv('Housing-Price-Prediction/submission1.csv', index=False)
+
+
+print("\n Finish")
