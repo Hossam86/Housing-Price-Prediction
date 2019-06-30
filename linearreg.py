@@ -73,3 +73,26 @@ corr = numeric_features.corr()
 # The first five features are the most positively correlated with SalePrice, while the next five are the most negatively correlated.
 print (corr['SalePrice'].sort_values(ascending=False)[:5], '\n')
 print (corr['SalePrice'].sort_values(ascending=False)[-5:])
+
+print("8 \n")
+
+#to get the unique values that a particular column has.
+#train.OverallQual.unique()
+# print(train.OverallQual.unique())
+
+print("9 \n")
+
+#investigate the relationship between OverallQual and SalePrice.
+#We set index='OverallQual' and values='SalePrice'. We chose to look at the median here.
+quality_pivot = train.pivot_table(index='OverallQual', values='SalePrice', aggfunc=np.median)
+# print(quality_pivot)
+
+print("10 \n")
+
+#visualize this pivot table more easily, we can create a bar plot
+#Notice that the median sales price strictly increases as Overall Quality increases.
+quality_pivot.plot(kind='bar', color='blue')
+plt.xlabel('Overall Quality')
+plt.ylabel('Median Sale Price')
+plt.xticks(rotation=0)
+plt.show()
