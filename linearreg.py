@@ -147,5 +147,14 @@ print("15 \n")
 #to return a list of the unique values
 print ("Unique values are:", train.MiscFeature.unique())
 
+######################################################
+#   Wrangling the non-numeric Features              ##
+######################################################
 
+print("16 \n")
+
+# consider the non-numeric features and display details of columns
+categoricals = train.select_dtypes(exclude=[np.number])
+#categoricals.describe()
+print(categoricals.describe())
 
