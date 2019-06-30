@@ -106,3 +106,25 @@ plt.xlabel('Above grade (ground) living area square feet')
 plt.show()
 
 print("12 \n")
+
+# do the same for GarageArea.
+plt.scatter(x=train['GarageArea'], y=target)
+plt.ylabel('Sale Price')
+plt.xlabel('Garage Area')
+plt.show()
+
+#######################################################
+# create a new dataframe with some outliers removed ###
+#######################################################
+
+print("13 \n")
+
+# create a new dataframe with some outliers removed
+train = train[train['GarageArea'] < 1200]
+
+# display the previous graph again without outliers
+plt.scatter(x=train['GarageArea'], y=np.log(train.SalePrice))
+plt.xlim(-200,1600)     # This forces the same scale as before
+plt.ylabel('Sale Price')
+plt.xlabel('Garage Area')
+plt.show()
