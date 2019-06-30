@@ -128,3 +128,24 @@ plt.xlim(-200,1600)     # This forces the same scale as before
 plt.ylabel('Sale Price')
 plt.xlabel('Garage Area')
 plt.show()
+
+######################################################
+#   Handling Null Values                            ##
+######################################################
+
+print("14 \n")
+
+# create a DataFrame to view the top null columns and return the counts of the null values in each column
+nulls = pd.DataFrame(train.isnull().sum().sort_values(ascending=False)[:25])
+nulls.columns = ['Null Count']
+nulls.index.name = 'Feature'
+#nulls
+print(nulls)
+
+print("15 \n")
+
+#to return a list of the unique values
+print ("Unique values are:", train.MiscFeature.unique())
+
+
+
