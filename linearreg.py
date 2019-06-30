@@ -71,5 +71,5 @@ print("7 \n")
 # displays the correlation between the columns and examine the correlations between the features and the target.
 corr = numeric_features.corr()
 # The first five features are the most positively correlated with SalePrice, while the next five are the most negatively correlated.
-print (corr['SalePrice'].sort_values(ascending=False), '\n')
-print (corr['SalePrice'].sort_values(ascending=False))
+print (corr['SalePrice'].sort_values(ascending=False)[:5], '\n')
+print (corr['SalePrice'].sort_values(ascending=False)[-5:])
