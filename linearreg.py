@@ -218,3 +218,58 @@ print("21 \n")
 # sum(data.isnull().sum() != 0)
 print(sum(data.isnull().sum() != 0))
 print("22 \n")
+
+######################################################
+#  3. Build a linear model                             ##
+######################################################
+
+# separate the features and the target variable for modeling.
+# We will assign the features to X and the target variable(Sales Price)to y.
+
+y = np.log(train.SalePrice)
+X = data.drop(['SalePrice', 'Id'], axis=1)
+# exclude ID from features since Id is just an index with no relationship to SalePrice.
+
+#======= partition the data ===================================================================================================#
+#   Partitioning the data in this way allows us to evaluate how our model might perform on data that it has never seen before.
+#   If we train the model on all of the test data, it will be difficult to tell if overfitting has taken place.
+#==============================================================================================================================#
+# also state how many percentage from train data set, we want to take as test data set
+# In this example, about 33% of the data is devoted to the hold-out set.
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=.33)
+
+
+#========= Begin modelling =========================#
+#    Linear Regression Model                        #
+#===================================================#
+
+# ---- first create a Linear Regression model.
+# First, we instantiate the model.
+lr = linear_model.LinearRegression()
+
+# ---- fit the model / Model fitting
+# lr.fit() method will fit the linear regression on the features and target variable that we pass.
+model = lr.fit(X_train, y_train)
+print("23 \n")
+
+# ---- Evaluate the performance and visualize results
+# r-squared value is a measure of how close the data are to the fitted regression line
+# a higher r-squared value means a better fit(very close to value 1)
+print("R^2 is: \n", model.score(X_test, y_test))
+
+# use the model we have built to make predictions on the test data set.
+predictions = model.predict(X_test)
+
+print("24 \n")
+# calculates the rmse
+print('RMSE is: \n', mean_squared_error(y_test, predictions))
+
+print("25 \n")
+# view this relationship between predictions and actual_values graphically with a scatter plot.
+actual_values = y_test
+plt.scatter(predictions, actual_values, alpha=.75,
+            color='b')  # alpha helps to show overlapping data
+plt.xlabel('Predicted Price')
+plt.ylabel('Actual Price')
+plt.title('Linear Regression Model')
+plt.show()
