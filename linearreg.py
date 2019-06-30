@@ -96,3 +96,13 @@ plt.xlabel('Overall Quality')
 plt.ylabel('Median Sale Price')
 plt.xticks(rotation=0)
 plt.show()
+
+print("11 \n")
+
+#to generate some scatter plots and visualize the relationship between the Ground Living Area(GrLivArea) and SalePrice
+plt.scatter(x=train['GrLivArea'], y=target)
+plt.ylabel('Sale Price')
+plt.xlabel('Above grade (ground) living area square feet')
+plt.show()
+
+print("12 \n")
