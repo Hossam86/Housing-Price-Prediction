@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
-
+from sklearn.model_selection import train_test_split
+from scipy import stats  # I might use this
+from scipy.stats import norm
 PATH= "DataSets/housing/"
 os.environ['PATH']
 
@@ -61,19 +63,20 @@ ax2.tick_params(axis='both', which='major', labelsize=8)
 fig.savefig('Housing-Price-Prediction/skew_kurt.png')
 plt.show()
 # ==============================================================================================
-# to plot a histogram of SalePrice
-print ("Skew is:", train.SalePrice.skew())
-plt.hist(train.SalePrice, color='blue')
-plt.show()
-sns.distplot(train['SalePrice'])
+# Target Variable Analysis: Is it Normal?
+# ====================================
+# histogram and normal probability plot
+sns.distplot(train["SalePrice"], fit=norm)
+fig = plt.figure()
+res = stats.probplot(train["SalePrice"], plot=plt)
 plt.show()
 
-target = np.log(train.SalePrice)
-print ("Skew is:", target.skew())
-plt.hist(target, color='blue')
+train["SalePrice"] = np.log(train["SalePrice"])
+sns.distplot(train["SalePrice"], fit=norm)
+fig = plt.figure()
+res = stats.probplot(train["SalePrice"], plot=plt)
 plt.show()
-sns.distplot(target)
-plt.show()
+
 # displays the correlation between the columns and examine the correlations between the features and the target.
 fig=plt.figure(5,figsize=(10,6))
 corr = QFact.corr()
@@ -145,16 +148,12 @@ print(categoricals.describe())
 #   Transforming and engineering features           ##
 ######################################################
 
-print("17 \n")
-
 # When transforming features, it's important to remember that any transformations that you've applied to the training data before
 # fitting the model must be applied to the test data.
 
 #Eg:
 print ("Original: \n")
 print (train.Street.value_counts(), "\n")
-
-print("18 \n")
 
 # our model needs numerical data, so we will use one-hot encoding to transform the data into a Boolean column.
 # create a new column called enc_street. The pd.get_dummies() method will handle this for us
@@ -163,8 +162,6 @@ test['enc_street'] = pd.get_dummies(test.Street, drop_first=True)
 
 print ('Encoded: \n')
 print (train.enc_street.value_counts())  # Pave and Grvl values converted into 1 and 0
-
-print("19 \n")
 
 # look at SaleCondition by constructing and plotting a pivot table, as we did above for OverallQual
 condition_pivot = train.pivot_table(index='SaleCondition', values='SalePrice', aggfunc=np.median)
@@ -195,8 +192,25 @@ plt.show()
 ######################################################################################################
 data = train.select_dtypes(include=[np.number]).interpolate().dropna()
 
-print("21 \n")
 # Check if the all of the columns have 0 null values.
 # sum(data.isnull().sum() != 0)
 print(sum(data.isnull().sum() != 0))
-print("22 \n")
+
+######################################################
+#  3. Build a Random forest model                   ##
+######################################################
+
+# separate the features and the target variable for modeling.
+# We will assign the features to X and the target variable(Sales Price)to y.
+
+y = np.log(train.SalePrice)
+X = data.drop(['SalePrice', 'Id'], axis=1)
+# exclude ID from features since Id is just an index with no relationship to SalePrice.
+
+#======= partition the data ===================================================================================================#
+#   Partitioning the data in this way allows us to evaluate how our model might perform on data that it has never seen before.
+#   If we train the model on all of the test data, it will be difficult to tell if overfitting has taken place.
+#==============================================================================================================================#
+# also state how many percentage from train data set, we want to take as test data set
+# In this example, about 33% of the data is devoted to the hold-out set.
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=.33)
