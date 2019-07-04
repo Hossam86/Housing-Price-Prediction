@@ -69,15 +69,11 @@ sns.distplot(train['SalePrice'])
 plt.show()
 
 target = np.log(train.SalePrice)
-print ("\n Skew is:", target.skew())
+print ("Skew is:", target.skew())
 plt.hist(target, color='blue')
 plt.show()
 sns.distplot(target)
 plt.show()
-
-#######################################################
-#   Working with Numeric Features                   ###
-#######################################################
 # displays the correlation between the columns and examine the correlations between the features and the target.
 fig=plt.figure(5,figsize=(10,6))
 corr = QFact.corr()
@@ -90,4 +86,29 @@ hm = sns.heatmap(corr,
             fmt='.2f',       # String formatting code to use when adding annotations.
             #annot_kws={"size": 14},
             linewidths=.05)
+plt.show()
+
+#investigate the relationship between OverallQual and SalePrice.
+#We set index='OverallQual' and values='SalePrice'. We chose to look at the median here.
+quality_pivot = train.pivot_table(index='OverallQual', values='SalePrice', aggfunc=np.median)
+
+#visualize this pivot table more easily, we can create a bar plot
+#Notice that the median sales price strictly increases as Overall Quality increases.
+# ======================================================================================
+quality_pivot.plot(kind='bar', color='blue')
+plt.xlabel('Overall Quality')
+plt.ylabel('Median Sale Price')
+plt.xticks(rotation=0)
+plt.show()
+
+#to generate some scatter plots and visualize the relationship between the Ground Living Area(GrLivArea) and SalePrice
+plt.scatter(x=train['GrLivArea'], y=target)
+plt.ylabel('Sale Price')
+plt.xlabel('Above grade (ground) living area square feet')
+plt.show()
+
+# do the same for GarageArea.
+plt.scatter(x=train['GarageArea'], y=target)
+plt.ylabel('Sale Price')
+plt.xlabel('Garage Area')
 plt.show()
