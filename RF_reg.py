@@ -112,3 +112,14 @@ plt.scatter(x=train['GarageArea'], y=target)
 plt.ylabel('Sale Price')
 plt.xlabel('Garage Area')
 plt.show()
+#######################################################
+# create a new dataframe with some outliers removed ###
+#######################################################
+train = train[train['GarageArea'] < 1200]
+
+# display the previous graph again without outliers
+plt.scatter(x=train['GarageArea'], y=np.log(train.SalePrice))
+plt.xlim(-200,1600)     # This forces the same scale as before
+plt.ylabel('Sale Price')
+plt.xlabel('Garage Area')
+plt.show()
