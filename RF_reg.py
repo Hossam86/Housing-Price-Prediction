@@ -188,3 +188,15 @@ plt.xlabel('Encoded Sale Condition')
 plt.ylabel('Median Sale Price')
 plt.xticks(rotation=0)
 plt.show()
+######################################################################################################
+#   Dealing with missing values                                                                      #
+#   We'll fill the missing values with an average value and then assign the results to data          #
+#   This is a method of interpolation                                                                #
+######################################################################################################
+data = train.select_dtypes(include=[np.number]).interpolate().dropna()
+
+print("21 \n")
+# Check if the all of the columns have 0 null values.
+# sum(data.isnull().sum() != 0)
+print(sum(data.isnull().sum() != 0))
+print("22 \n")
