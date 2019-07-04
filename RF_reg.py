@@ -74,3 +74,20 @@ plt.hist(target, color='blue')
 plt.show()
 sns.distplot(target)
 plt.show()
+
+#######################################################
+#   Working with Numeric Features                   ###
+#######################################################
+# displays the correlation between the columns and examine the correlations between the features and the target.
+fig=plt.figure(5,figsize=(10,6))
+corr = QFact.corr()
+ax=fig.add_subplot(1,1,1)
+hm = sns.heatmap(corr, 
+            ax=ax,           # Axes in which to draw the plot, otherwise use the currently-active Axes.
+            cmap="coolwarm", # Color Map.
+            #square=True,    # If True, set the Axes aspect to “equal” so each cell will be square-shaped.
+            annot=False, 
+            fmt='.2f',       # String formatting code to use when adding annotations.
+            #annot_kws={"size": 14},
+            linewidths=.05)
+plt.show()
