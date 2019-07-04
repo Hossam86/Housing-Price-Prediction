@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.tree import DecisionTreeRegressor as dtr
 from scipy import stats  # I might use this
 from scipy.stats import norm
 PATH= "DataSets/housing/"
@@ -38,9 +40,9 @@ title=fig.suptitle("Skewness and Kurtosis in data ", fontsize=16, fontweight='bo
 fig.subplots_adjust(top=0.88,wspace=0.3)
 dataSk=QFact.skew()
 dataKu=QFact.kurt()
-#===========#
+# ----------
 # skew #
-#===========#
+#----------
 ax1=fig.add_subplot(1,2,1)
 # ax1.set_xlabel("features")
 ax1.set_ylabel("Skewness")
@@ -48,36 +50,38 @@ ax1.set_ylabel("Skewness")
 bars1 = ax1.bar(QFact.columns,dataSk,color='darksalmon',edgecolor='darkred', linewidth=1)
 ax1.tick_params(axis='both', which='major', labelsize=8)
 plt.xticks(rotation=90)
-#==============#
+# ----------
 # Kurtosis #
-#==============#
+# ----------
 ax2 = fig.add_subplot(1,2,2) 
 # ax2.set_xlabel("features")
 ax2.set_ylabel("Kurtosis") 
 bars2 = ax2.bar(QFact.columns,dataKu,color='darksalmon',edgecolor='darkred', linewidth=1)
 plt.xticks(rotation=90)
 ax2.tick_params(axis='both', which='major', labelsize=8)
-#=============#
+# ----------
 # Save Figure #
-#=============#
+# ----------
 fig.savefig('Housing-Price-Prediction/skew_kurt.png')
 plt.show()
-# ==============================================================================================
+# -------------------------------------------------------------------------------------
 # Target Variable Analysis: Is it Normal?
-# ====================================
+# ---------------------------------------
 # histogram and normal probability plot
 sns.distplot(train["SalePrice"], fit=norm)
 fig = plt.figure()
 res = stats.probplot(train["SalePrice"], plot=plt)
 plt.show()
-
+# Scale target 
+# ----------
 train["SalePrice"] = np.log(train["SalePrice"])
 sns.distplot(train["SalePrice"], fit=norm)
 fig = plt.figure()
 res = stats.probplot(train["SalePrice"], plot=plt)
 plt.show()
-
+# -------------------------------------------------------------------------------------
 # displays the correlation between the columns and examine the correlations between the features and the target.
+# -------------------------------------------------------------------------------------
 fig=plt.figure(5,figsize=(10,6))
 corr = QFact.corr()
 ax=fig.add_subplot(1,1,1)
@@ -105,6 +109,7 @@ plt.xticks(rotation=0)
 plt.show()
 
 #to generate some scatter plots and visualize the relationship between the Ground Living Area(GrLivArea) and SalePrice
+target=train["SalePrice"]
 plt.scatter(x=train['GrLivArea'], y=target)
 plt.ylabel('Sale Price')
 plt.xlabel('Above grade (ground) living area square feet')
@@ -121,7 +126,7 @@ plt.show()
 train = train[train['GarageArea'] < 1200]
 
 # display the previous graph again without outliers
-plt.scatter(x=train['GarageArea'], y=np.log(train.SalePrice))
+plt.scatter(x=train['GarageArea'], y=train['SalePrice'])
 plt.xlim(-200,1600)     # This forces the same scale as before
 plt.ylabel('Sale Price')
 plt.xlabel('Garage Area')
@@ -147,7 +152,6 @@ print(categoricals.describe())
 ######################################################
 #   Transforming and engineering features           ##
 ######################################################
-
 # When transforming features, it's important to remember that any transformations that you've applied to the training data before
 # fitting the model must be applied to the test data.
 
@@ -176,7 +180,6 @@ def encode(x): return 1 if x == 'Partial' else 0
 train['enc_condition'] = train.SaleCondition.apply(encode)
 test['enc_condition'] = test.SaleCondition.apply(encode)
 
-print("20 \n")
 
 # explore this newly modified feature as a plot.
 condition_pivot = train.pivot_table(index='enc_condition', values='SalePrice', aggfunc=np.median)
@@ -202,8 +205,6 @@ print(sum(data.isnull().sum() != 0))
 
 # separate the features and the target variable for modeling.
 # We will assign the features to X and the target variable(Sales Price)to y.
-
-y = np.log(train.SalePrice)
 X = data.drop(['SalePrice', 'Id'], axis=1)
 # exclude ID from features since Id is just an index with no relationship to SalePrice.
 
@@ -213,4 +214,17 @@ X = data.drop(['SalePrice', 'Id'], axis=1)
 #==============================================================================================================================#
 # also state how many percentage from train data set, we want to take as test data set
 # In this example, about 33% of the data is devoted to the hold-out set.
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=.33)
+X_train, X_test, y_train, y_test = train_test_split(X, data['SalePrice'], random_state=42, test_size=.33)
+
+# try fitting a decision tree regression model...
+DTR_1 = dtr(
+    max_depth=None
+)  # declare the regression model form. Let the depth be default.
+# DTR_1.fit(X,Y) # fit the training data
+scores_dtr = cross_val_score(
+    DTR_1, X_train, y_train, cv=10, scoring="explained_variance"
+)  # 10-fold cross validation
+print("scores for k=10 fold validation:", scores_dtr)
+print(
+    "Est. explained variance: %0.2f (+/- %0.2f)"
+    % (scores_dtr.mean(), scores_dtr.std() * 2))
