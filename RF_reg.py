@@ -203,9 +203,9 @@ data = train.select_dtypes(include=[np.number]).interpolate().dropna()
 # sum(data.isnull().sum() != 0)
 print(sum(data.isnull().sum() != 0))
 
-######################################################
-#  3. Build a Random forest model                   ##
-######################################################
+#========= Begin modelling =========================#
+#    Random Forest Regression Model                        #
+#===================================================#
 
 # separate the features and the target variable for modeling.
 # We will assign the features to X and the target variable(Sales Price)to y.
@@ -220,7 +220,8 @@ X = data.drop(['SalePrice', 'Id'], axis=1)
 # In this example, about 33% of the data is devoted to the hold-out set.
 X_train, X_test, y_train, y_test = train_test_split(X, data['SalePrice'], random_state=42, test_size=.33)
 
-# try fitting a decision tree regression model...
+# fitting a decision tree regression model...
+print('fitting a decision tree regression model...')
 DTR_1 = dtr(
     max_depth=None
 )  # declare the regression model form. Let the depth be default.
