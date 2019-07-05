@@ -5,6 +5,7 @@ import seaborn as sns
 
 
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import mean_squared_error
 from sklearn import linear_model
 import os
@@ -246,6 +247,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_
 # ---- first create a Linear Regression model.
 # First, we instantiate the model.
 lr = linear_model.LinearRegression()
+
+
+scores_dtr = cross_val_score(lr, X_train, y_train, cv=10, scoring="explained_variance")  # 10-fold cross validation
+print("scores for k=10 fold validation:", scores_dtr)
+print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_dtr.mean(), scores_dtr.std() * 2))
+
 
 # ---- fit the model / Model fitting
 # lr.fit() method will fit the linear regression on the features and target variable that we pass.
