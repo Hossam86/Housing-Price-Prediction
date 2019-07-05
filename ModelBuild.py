@@ -18,6 +18,10 @@ def getModel(X_train,y_train,sorted_scores, numFeatures,estimators):
     for i in estimators:
         model = rfr(n_estimators=i, max_depth=None)
         scores_rfr = cross_val_score(model, X, y_train, cv=10, scoring="explained_variance")
+        print("estimators:", i)
+        #     print('explained variance scores for k=10 fold validation:',scores_rfr)
+        print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_rfr.mean(), scores_rfr.std() * 2))
+        print("")
         mean_rfrs.append(scores_rfr.mean())
         std_rfrs_upper.append(scores_rfr.mean() + scores_rfr.std() * 2)  # for error plotting
         std_rfrs_lower.append(scores_rfr.mean() - scores_rfr.std() * 2)  # for error plotting
