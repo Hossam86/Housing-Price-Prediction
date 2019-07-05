@@ -23,3 +23,4 @@ def Feature_Ranking(X_train,y_train):
     # plt.xlabel('Trees in Forest')
     # plt.grid()
     plt.show()
+    return sorted_scores
