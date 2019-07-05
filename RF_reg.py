@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeRegressor as dtr
 from sklearn.ensemble import RandomForestRegressor as rfr
-import sklearn.feature_selection as fs  # feature selection library in scikit-learn
 from scipy import stats  # I might use this
 from scipy.stats import norm
+from ModelBuild import getModel,plotResults
+from Feature_Ranking import Feature_Ranking
+from sklearn.model_selection import cross_val_score
+
 PATH= "DataSets/housing/"
 os.environ['PATH']
 
@@ -223,13 +225,9 @@ DTR_1 = dtr(
     max_depth=None
 )  # declare the regression model form. Let the depth be default.
 # DTR_1.fit(X,Y) # fit the training data
-scores_dtr = cross_val_score(
-    DTR_1, X_train, y_train, cv=10, scoring="explained_variance"
-)  # 10-fold cross validation
+scores_dtr = cross_val_score(DTR_1, X_train, y_train, cv=10, scoring="explained_variance")  # 10-fold cross validation
 print("scores for k=10 fold validation:", scores_dtr)
-print(
-    "Est. explained variance: %0.2f (+/- %0.2f)"
-    % (scores_dtr.mean(), scores_dtr.std() * 2))
+print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_dtr.mean(), scores_dtr.std() * 2))
 
 # ============================================================================
 # Seeing the Random Forest for the Trees¶
@@ -245,18 +243,11 @@ for i in estimators:
     scores_rfr = cross_val_score(model, X_train, y_train, cv=10, scoring="explained_variance")
     print("estimators:", i)
     #     print('explained variance scores for k=10 fold validation:',scores_rfr)
-    print(
-        "Est. explained variance: %0.2f (+/- %0.2f)"
-        % (scores_rfr.mean(), scores_rfr.std() * 2)
-    )
+    print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_rfr.mean(), scores_rfr.std() * 2))
     print("")
     mean_rfrs.append(scores_rfr.mean())
-    std_rfrs_upper.append(
-        scores_rfr.mean() + scores_rfr.std() * 2
-    )  # for error plotting
-    std_rfrs_lower.append(
-        scores_rfr.mean() - scores_rfr.std() * 2
-    )  # for error plotting
+    std_rfrs_upper.append(scores_rfr.mean() + scores_rfr.std() * 2)  # for error plotting
+    std_rfrs_lower.append(scores_rfr.mean() - scores_rfr.std() * 2)  # for error plotting
 # and plot...
 fig = plt.figure(figsize=(12, 8))
 ax = fig.add_subplot(111)
@@ -276,28 +267,8 @@ plt.ylabel("Expected Variance")
 plt.xlabel("Trees in Forest")
 plt.grid()
 plt.show()
-# ============================================================================
-# Mutual Information Regression Metric for Feature Ranking¶
-# ============================================================================
-mir_result = fs.mutual_info_regression(
-    X_train,y_train
-)  # mutual information regression feature ordering
-feature_scores = []
-for i in np.arange(len(X_train.columns)):
-    feature_scores.append([X_train.columns[i], mir_result[i]])
-sorted_scores = sorted(
-    np.array(feature_scores), key=lambda s: float(s[1]), reverse=True
-)
-print(np.array(sorted_scores))
 
-# and plot...
-fig = plt.figure(figsize=(13, 6))
-ax = fig.add_subplot(111)
-ind = np.arange(len(X_train.columns))
-plt.bar(ind, [float(i) for i in np.array(sorted_scores)[:, 1]])
-ax.axes.set_xticks(ind)
-plt.title("Feature Importances (Mutual Information Regression)")
-plt.ylabel("Importance")
-# plt.xlabel('Trees in Forest')
-# plt.grid()
-plt.show()
+sorted_scores=Feature_Ranking(X_train,y_train)
+# top 15...
+mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 15,estimators)
+plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 15,estimators)
