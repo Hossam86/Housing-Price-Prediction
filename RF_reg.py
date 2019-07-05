@@ -6,6 +6,7 @@ import os
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.tree import DecisionTreeRegressor as dtr
+from sklearn.ensemble import RandomForestRegressor as rfr
 from scipy import stats  # I might use this
 from scipy.stats import norm
 PATH= "DataSets/housing/"
@@ -228,3 +229,49 @@ print("scores for k=10 fold validation:", scores_dtr)
 print(
     "Est. explained variance: %0.2f (+/- %0.2f)"
     % (scores_dtr.mean(), scores_dtr.std() * 2))
+
+# ============================================================================
+# Seeing the Random Forest for the Trees¶
+# =======================================
+estimators = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
+mean_rfrs = []
+std_rfrs_upper = []
+std_rfrs_lower = []
+# yt = [i for i in Y["SalePrice"]]  # quick pre-processing of the target
+np.random.seed(42)
+for i in estimators:
+    model = rfr(n_estimators=i, max_depth=None)
+    scores_rfr = cross_val_score(model, X_train, y_train, cv=10, scoring="explained_variance")
+    print("estimators:", i)
+    #     print('explained variance scores for k=10 fold validation:',scores_rfr)
+    print(
+        "Est. explained variance: %0.2f (+/- %0.2f)"
+        % (scores_rfr.mean(), scores_rfr.std() * 2)
+    )
+    print("")
+    mean_rfrs.append(scores_rfr.mean())
+    std_rfrs_upper.append(
+        scores_rfr.mean() + scores_rfr.std() * 2
+    )  # for error plotting
+    std_rfrs_lower.append(
+        scores_rfr.mean() - scores_rfr.std() * 2
+    )  # for error plotting
+# and plot...
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111)
+ax.plot(estimators, mean_rfrs, marker="o", linewidth=4, markersize=12)
+ax.fill_between(
+    estimators,
+    std_rfrs_lower,
+    std_rfrs_upper,
+    facecolor="green",
+    alpha=0.3,
+    interpolate=True,
+)
+ax.set_ylim([-0.3, 1])
+ax.set_xlim([0, 80])
+plt.title("Expected Variance of Random Forest Regressor")
+plt.ylabel("Expected Variance")
+plt.xlabel("Trees in Forest")
+plt.grid()
+plt.show()
