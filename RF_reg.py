@@ -232,6 +232,7 @@ print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_dtr.mean(), scores_d
 # ============================================================================
 # Seeing the Random Forest for the Trees¶
 # =======================================
+print("Sweeping no of trees ")
 estimators = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
 mean_rfrs = []
 std_rfrs_upper = []
@@ -272,3 +273,20 @@ sorted_scores=Feature_Ranking(X_train,y_train)
 # top 15...
 mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 15,estimators)
 plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 15,estimators)
+
+# top 20...
+mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 20,estimators)
+plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 20,estimators)
+
+# top 30...
+mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 30,estimators)
+plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 30,estimators)
+
+# top 40...
+mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 40,estimators)
+plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 40,estimators)
+
+# top 50...
+mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 50,estimators)
+plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 50,estimators)
+
