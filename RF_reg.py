@@ -11,6 +11,7 @@ from scipy.stats import norm
 from ModelBuild import getModel,plotResults
 from Feature_Ranking import Feature_Ranking
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import mean_squared_error
 
 PATH= "DataSets/housing/"
 os.environ['PATH']
@@ -221,6 +222,8 @@ X = data.drop(['SalePrice', 'Id'], axis=1)
 X_train, X_test, y_train, y_test = train_test_split(X, data['SalePrice'], random_state=42, test_size=.33)
 
 # fitting a decision tree regression model...
+#==============================================================================================================================#
+
 print('fitting a decision tree regression model...')
 DTR_1 = dtr(
     max_depth=None
@@ -229,65 +232,66 @@ DTR_1 = dtr(
 scores_dtr = cross_val_score(DTR_1, X_train, y_train, cv=10, scoring="explained_variance")  # 10-fold cross validation
 print("scores for k=10 fold validation:", scores_dtr)
 print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_dtr.mean(), scores_dtr.std() * 2))
-
-# ============================================================================
-# Seeing the Random Forest for the Trees¶
-# =======================================
-print("Sweeping no of trees ")
-estimators = [2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
-mean_rfrs = []
-std_rfrs_upper = []
-std_rfrs_lower = []
-# yt = [i for i in Y["SalePrice"]]  # quick pre-processing of the target
-np.random.seed(42)
-for i in estimators:
-    model = rfr(n_estimators=i, max_depth=None)
-    scores_rfr = cross_val_score(model, X_train, y_train, cv=10, scoring="explained_variance")
-    print("estimators:", i)
-    #     print('explained variance scores for k=10 fold validation:',scores_rfr)
-    print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_rfr.mean(), scores_rfr.std() * 2))
-    print("")
-    mean_rfrs.append(scores_rfr.mean())
-    std_rfrs_upper.append(scores_rfr.mean() + scores_rfr.std() * 2)  # for error plotting
-    std_rfrs_lower.append(scores_rfr.mean() - scores_rfr.std() * 2)  # for error plotting
-# and plot...
-fig = plt.figure(figsize=(12, 8))
-ax = fig.add_subplot(111)
-ax.plot(estimators, mean_rfrs, marker="o", linewidth=4, markersize=12)
-ax.fill_between(
-    estimators,
-    std_rfrs_lower,
-    std_rfrs_upper,
-    facecolor="green",
-    alpha=0.3,
-    interpolate=True,
-)
-ax.set_ylim([-0.3, 1])
-ax.set_xlim([0, 80])
-plt.title("Expected Variance of Random Forest Regressor")
-plt.ylabel("Expected Variance")
-plt.xlabel("Trees in Forest")
-plt.grid()
-plt.show()
-
+#==============================================================================================================================#
 sorted_scores=Feature_Ranking(X_train,y_train)
-# top 15...
-mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 15,estimators)
-plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 15,estimators)
 
-# top 20...
-mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 20,estimators)
-plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 20,estimators)
+# # top 15...
+# mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 15,estimators)
+# plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 15,estimators)
 
-# top 30...
-mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 30,estimators)
-plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 30,estimators)
+# # top 20...
+# mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 20,estimators)
+# plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 20,estimators)
 
-# top 40...
-mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 40,estimators)
-plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 40,estimators)
+# # top 30...
+# mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 30,estimators)
+# plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 30,estimators)
 
-# top 50...
-mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 50,estimators)
-plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 50,estimators)
+# # top 40...
+# mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 40,estimators)
+# plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 40,estimators)
 
+# # top 50...
+# mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 50,estimators)
+# plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 50,estimators)
+
+# =================================================================================
+# The Finale: Building the Output for Submission
+# ==============================================
+# build the model with the desired parameters...
+numFeatures = 10  # the number of features to inlcude
+trees = 40  # trees in the forest
+included_features = np.array(sorted_scores)[:, 0][:numFeatures]
+# define the training data X...
+X = X_train[included_features]
+yt = y_train
+model = rfr(n_estimators=trees, max_depth=None)
+scores_rfr = cross_val_score(model, X, yt, cv=10, scoring="explained_variance")
+print("explained variance scores for k=10 fold validation:", scores_rfr)
+print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_rfr.mean(), scores_rfr.std() * 2))
+# fit the model
+model.fit(X, yt)
+# =================================================================================
+# testing
+# =================================================================================
+# ---- Evaluate the performance and visualize results
+# r-squared value is a measure of how close the data are to the fitted regression line
+# a higher r-squared value means a better fit(very close to value 1)
+X_t=X_test[included_features]
+
+print("R^2 is: \n", model.score(X_t, y_test))
+# use the model we have built to make predictions on the test data set.
+predictions = model.predict(X_t)
+
+# calculates the rmse
+print('RMSE is: \n', mean_squared_error(y_test, predictions))
+
+# view this relationship between predictions and actual_values graphically with a scatter plot.
+actual_values = y_test
+plt.scatter(predictions, actual_values, alpha=.75,color='b')  # alpha helps to show overlapping data
+plt.xlabel('Predicted Price')
+plt.ylabel('Actual Price')
+plt.title('Random Forest Regression Model')
+overlay = 'R^2 is: {}\nRMSE is: {}'.format(model.score(X_t, y_test),mean_squared_error(y_test, predictions))
+plt.annotate(s=overlay,xy=(12.2,10.6),size='x-large')
+plt.show()
