@@ -185,7 +185,6 @@ def encode(x): return 1 if x == 'Partial' else 0
 train['enc_condition'] = train.SaleCondition.apply(encode)
 test['enc_condition'] = test.SaleCondition.apply(encode)
 
-
 # explore this newly modified feature as a plot.
 condition_pivot = train.pivot_table(index='enc_condition', values='SalePrice', aggfunc=np.median)
 condition_pivot.plot(kind='bar', color='blue')
@@ -223,21 +222,18 @@ X_train, X_test, y_train, y_test = train_test_split(X, data['SalePrice'], random
 
 # fitting a decision tree regression model...
 #==============================================================================================================================#
-
 print('fitting a decision tree regression model...')
-DTR_1 = dtr(
-    max_depth=None
-)  # declare the regression model form. Let the depth be default.
+DTR_1 = dtr(max_depth=None)  # declare the regression model form. Let the depth be default.
 # DTR_1.fit(X,Y) # fit the training data
 scores_dtr = cross_val_score(DTR_1, X_train, y_train, cv=10, scoring="explained_variance")  # 10-fold cross validation
 print("scores for k=10 fold validation:", scores_dtr)
 print("Est. explained variance: %0.2f (+/- %0.2f)"% (scores_dtr.mean(), scores_dtr.std() * 2))
 #==============================================================================================================================#
 sorted_scores=Feature_Ranking(X_train,y_train)
-
-# # top 15...
-# mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 15,estimators)
-# plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 15,estimators)
+estimators=[10,20, 30, 40, 50, 60, 70, 80]
+# top 15...
+mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 15,estimators)
+plotResults(mean_rfrs, std_rfrs_upper, std_rfrs_lower, 15,estimators)
 
 # # top 20...
 # mean_rfrs, std_rfrs_upper, std_rfrs_lower = getModel(X_train,y_train,sorted_scores, 20,estimators)
