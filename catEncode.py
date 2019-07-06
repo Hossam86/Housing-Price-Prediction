@@ -1,4 +1,5 @@
 def getObjectFeature(df, col, datalength=1460):
+    '''# 0 = most common category, highest int = least common.'''
     if df[col].dtype != "object":  # if it's not categorical..
         print("feature", col, "is not an object feature.")
         return df
